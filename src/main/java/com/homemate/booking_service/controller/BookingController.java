@@ -2,8 +2,10 @@ package com.homemate.booking_service.controller;
 
 import com.homemate.booking_service.entity.BookingEntity;
 import com.homemate.booking_service.entity.ProviderEntity;
+import com.homemate.booking_service.entity.UserEntity;
 import com.homemate.booking_service.repository.BookingRepository;
 import com.homemate.booking_service.repository.ProviderRepository;
+import com.homemate.booking_service.repository.UserRepository;
 import com.homemate.booking_service.util.RoleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +16,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/bookings")
 public class BookingController {
-
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private BookingRepository bookingRepo;
 
@@ -27,6 +30,7 @@ public class BookingController {
     @Autowired
     private RoleValidator roleValidator;
 
+
     // ================= CREATE BOOKING =================
     @PostMapping
     public BookingEntity createBooking(
@@ -34,6 +38,14 @@ public class BookingController {
             @RequestBody BookingEntity booking) {
 
         roleValidator.userOnly(role);
+        // ✅ 1️⃣ USER ENTITY SE DATA UTHAO
+        UserEntity user = userRepository.findByName(booking.getUserName())
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        // ✅ 2️⃣ EMAIL & PHONE SET KARO
+        booking.setEmail(user.getEmail());
+        booking.setPhone(user.getPhone());
 
         // ---------------- 1️⃣ BOOKING REQUESTED ----------------
         booking.setStatus("REQUESTED");
@@ -47,11 +59,12 @@ public class BookingController {
                         "Our team will assign a service professional shortly.\n\n" +
                         "Thank you for choosing HomeMate.\n\n" +
                         "Best regards,\n" +
-                        "HomeMate Support Team";
+                        "HomeMate Support Team "+booking.getEmail();
+
 
         restTemplate.postForObject(
                 "http://EMAIL-SERVICE/send-email",
-                requestedEmail,
+               requestedEmail,
                 String.class
         );
 
@@ -179,4 +192,16 @@ public class BookingController {
         roleValidator.adminOnly(role);
         return bookingRepo.findAll();
     }
+    // ================= USER: VIEW OWN BOOKINGS (READ-ONLY) =================
+    @GetMapping("/my")
+    public List<BookingEntity> getMyBookings(
+            @RequestHeader("X-ROLE") String role,
+            @RequestHeader("X-USER") String userName) {
+
+        roleValidator.userOnly(role);
+
+        // ONLY fetch — no save/update/delete here
+        return bookingRepo.findByUserName(userName);
+    }
+
 }

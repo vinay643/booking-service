@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/services")
 public class ServiceController {
@@ -18,7 +17,7 @@ public class ServiceController {
     @Autowired
     private RoleValidator roleValidator;
 
-    // ADMIN: Add service
+    // ================= ADD SERVICE (ADMIN) =================
     @PostMapping
     public ServiceEntity addService(
             @RequestHeader("X-ROLE") String role,
@@ -28,9 +27,39 @@ public class ServiceController {
         return serviceRepo.save(service);
     }
 
-    // PUBLIC: View services
+    // ================= VIEW ALL SERVICES (PUBLIC / ADMIN) =================
     @GetMapping
     public List<ServiceEntity> getServices() {
         return serviceRepo.findAll();
+    }
+
+    // ================= UPDATE SERVICE (ADMIN) =================
+    @PutMapping("/{id}")
+    public ServiceEntity updateService(
+            @RequestHeader("X-ROLE") String role,
+            @PathVariable Integer id,
+            @RequestBody ServiceEntity updatedService) {
+
+        roleValidator.adminOnly(role);
+
+        ServiceEntity service = serviceRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Service not found"));
+
+        service.setName(updatedService.getName());
+        service.setPrice(updatedService.getPrice());
+
+        return serviceRepo.save(service);
+    }
+
+    // ================= DELETE SERVICE (ADMIN) =================
+    @DeleteMapping("/{id}")
+    public String deleteService(
+            @RequestHeader("X-ROLE") String role,
+            @PathVariable Integer id) {
+
+        roleValidator.adminOnly(role);
+
+        serviceRepo.deleteById(id);
+        return "SERVICE_DELETED";
     }
 }

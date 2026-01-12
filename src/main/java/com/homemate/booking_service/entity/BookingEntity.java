@@ -3,9 +3,12 @@ package com.homemate.booking_service.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import org.springframework.beans.factory.annotation.Autowired;
+
 
 @Entity
 public class BookingEntity {
+
 
     @Id
     @GeneratedValue
@@ -18,6 +21,17 @@ public class BookingEntity {
     private String serviceName;
     private String providerName;
     private String status;
+    private String email="";
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String mail) {
+        this.email = mail;
+    }
+
+
 
     public Integer getId() {
         return id;
