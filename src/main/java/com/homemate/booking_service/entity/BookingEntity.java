@@ -2,6 +2,7 @@ package com.homemate.booking_service.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -11,7 +12,7 @@ public class BookingEntity {
 
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String userName;

@@ -1,0 +1,3 @@
+2026-01-13 03:47:57.643741+05:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "SERVICE_ENTITY" not found (this database is empty); SQL statement:
+INSERT INTO service_entity (id, name, price) VALUES (1, 'Cleaning', 500), (2, 'Plumbing', 800), (3, 'Electrical', 700) [42104-240]
